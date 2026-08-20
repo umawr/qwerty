@@ -1,5 +1,118 @@
-button{
-  color: black
-  display: flex
-  ig idk
+* {
+  background-color: black;
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+.temperature,
+.locationDetails {
+  font-family: 'Prata';
+}
+.header {
+  display: flex;
+  flex-direction: row;
+}
+.locationContainer {
+  padding: 2.2rem 1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.location {
+  font-family: 'Prata', serif;
+  font-size: 4rem;
+  border: none;
+  width: 100%;
+  min-width: 0;
+}
+.location:focus,
+.coordinates:focus {
+  outline: none;
+}
+.locationDetails {
+  font-family: 'Prata', serif;
+  font-size: 2rem;
+}
+.location::placeholder {
+  color: #303030;
+}
+.coordinates {
+  font-family: 'Lato', serif;
+  font-size: 1rem;
+  border: none;
+  margin: 1rem 0rem 0rem 0rem;
+  display: inline-flex;
+}
+.locationContainer,
+.temperatureContainer {
+  min-width: 0;
+  flex: 1;
+}
+.temperatureContainer {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1rem 0.5rem 1rem;
+  text-align: right;
+}
+.temperature {
+  font-size: 6rem;
+  font-family: 'Prata', serif;
+}
+.sunnyIcon {
+  font-size: 5rem !important;
+  font-variation-settings:
+    'opsz' 48,
+    'FILL' 1;
+  vertical-align: -0.1rem;
+}
+.additional {
+  text-align: right;
+  font-family: 'Lato', serif;
+  padding: 0rem 1rem 0rem 1rem;
+  margin-top: -2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  position: absolute;
+  top: 12rem;
+  right: 0.5rem;
+}
+.feelsLikeLabel,
+.windLabel,
+.humidityLabel,
+.precipitationLabel {
+  color: #f1f1f1;
+}
+.feelsLikeValue,
+.windValue,
+.humidityValue,
+.precipitationValue {
+  font-size: 1rem;
+  color: white;
+}
+.dateContainer {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 6px;
+  font-family: 'Lato', serif;
+  margin: 0.5rem 0 0 0;
+}
+.day {
+  font-size: 1.2rem;
+}
+.date {
+  font-size: 1rem;
+}
+.timeBox {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  font-family: 'Lato', serif;
+}
+.time {
+  font-size: 1rem;
+  margin-left: 0.5rem;
+  font-family: 'Lato', serif;
 }
