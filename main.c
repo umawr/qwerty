@@ -1,7 +1,10 @@
 #include<stdio.h>
-extern int a;
-extern int b;
-int main()
+#include<math.h>
+#include<complex.h
+
+int main(void)
 {
-  printf("%d\n", a + b);
+  float a, b, c, d, r1, r2;
+  printf("HI");
+  return 0;
 }
