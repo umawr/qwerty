@@ -1,113 +1,166 @@
 'use strict';
 
-let userChoice = null;
-let hasStarted = false;
+const addButtons = {
+  toDo: document.querySelector('.add-button-to-do'),
+  inProgress: document.querySelector('.add-button-in-progress'),
+  completed: document.querySelector('.add-button-completed'),
+};
 
-const rockClickSound = new Audio('sounds/rockclick2.mp3');
-const paperClickSound = new Audio('sounds/paperclick2.mp3');
-const scissorsClickSound = new Audio('sounds/scissorsclick2.mp3');
-const resetSound = new Audio('sounds/reset3.1.mp3');
+const containers = {
+  toDo: document.querySelector('.to-do'),
+  inProgress: document.querySelector('.in-progress'),
+  completed: document.querySelector('.completed'),
+};
 
-function playSound(audio) {
-  audio.currentTime = 0;
-  audio.play().catch(err => console.warn('Sound failed to play:', err));
+const numberDisplays = {
+  toDo: document.querySelector('.numberToDo'),
+  inProgress: document.querySelector('.numberInProgress'),
+  completed: document.querySelector('.numberCompleted'),
+};
+
+const counts = {
+  toDo: 0,
+  inProgress: 0,
+  completed: 0,
+};
+
+function updateDisplay(category) {
+  numberDisplays[category].textContent = `${counts[category]}`;
 }
 
-function youMove(choice) {
-  const decisionLog = document.querySelector('.decision');
-  const youMoveLog = document.querySelector('.youMove');
-  const umairMoveLog = document.querySelector('.umairMove');
-  
-  if (choice === 'rock') {
-    playSound(rockClickSound);
-  } else if (choice === 'paper') {
-    playSound(paperClickSound);
-  } else if (choice === 'scissors') {
-    playSound(scissorsClickSound);
-  }
+// Renumbers cards independently per column
+function renumberCards() {
+  Object.keys(containers).forEach(category => {
+    const container = containers[category];
+    if (!container) return;
 
+    const columnCards = container.querySelectorAll('.task');
 
-  if (!hasStarted) {
-    decisionLog.innerHTML = '';
-    youMoveLog.innerHTML = '';
-    umairMoveLog.innerHTML = '';
-    hasStarted = true;
-  }
-
-  const random = Math.random();
-
-  let umairMove;
-
-  if (random >= 0 && random < 1 / 3) {
-    umairMove = 'rock';
-  } else if (random >= 1 / 3 && random < 2 / 3) {
-    umairMove = 'paper';
-  } else {
-    umairMove = 'scissors';
-  }
-
-  console.log('Umair picked:', umairMove);
-
-  const umairLog = document.querySelector('.umairMove');
-  const newUmairLog = document.createElement('p');
-  newUmairLog.textContent = `${umairMove}`;
-  umairLog.prepend(newUmairLog);
-  while (umairLog.children.length > 4) {
-    umairLog.removeChild(umairLog.lastElementChild);
-  }
-
-  userChoice = choice;
-  console.log('You picked:', userChoice);
-
-  const playerLog = document.querySelector('.youMove');
-  const newPlayerLog = document.createElement('p');
-  newPlayerLog.textContent = `${userChoice}`;
-  playerLog.prepend(newPlayerLog);
-  while (playerLog.children.length > 4) {
-    playerLog.removeChild(playerLog.lastElementChild);
-  }
-
-  const beats = { rock: 'scissors', paper: 'rock', scissors: 'paper' };
-
-  let result;
-  if (umairMove === userChoice) {
-    result = 'Try Again';
-  } else if (beats[umairMove] === userChoice) {
-    result = 'Umair Wins';
-  } else {
-    result = 'You Win';
-  }
-
-
-  console.log(result);
-
-  const newResult = document.createElement('p');
-  newResult.textContent = `${result}`;
-
-  decisionLog.prepend(newResult);
-
-  while (decisionLog.children.length > 4) {
-    decisionLog.removeChild(decisionLog.lastElementChild);
-  }
-
-  const youScore = document.querySelector('.youScore');
-  const umairScore = document.querySelector('.umairScore');
-
-  if (result === 'You Win') {
-    youScore.textContent = Number(youScore.textContent) + 1;
-  } else if (result === 'Umair Wins') {
-    umairScore.textContent = Number(umairScore.textContent) + 1;
-  }
+    columnCards.forEach((card, index) => {
+      const numberElement = card.querySelector('.task-number');
+      if (numberElement) {
+        numberElement.textContent = `${index + 1}.`;
+      }
+    });
+  });
 }
 
-const resetButton = document.querySelector('.name');
-resetButton.addEventListener('click', () => {
-  playSound(resetSound);
 
-  document.querySelector('.youScore').innerHTML = 0;
-  document.querySelector('.umairScore').innerHTML = 0;
-  document.querySelector('.decision').innerHTML = 'Choose an Option';
-  document.querySelector('.youMove').innerHTML = 'Your Moves';
-  document.querySelector('.umairMove').innerHTML = "Umair's Moves";
-  hasStarted = false;
+let selectedCard = null;
+
+const dropBoxes = document.querySelectorAll('.to-do, .in-progress, .completed');
+
+dropBoxes.forEach(box => {
+  box.addEventListener('dragover', e => {
+    e.preventDefault();
+  });
+
+  box.addEventListener('drop', e => {
+    e.preventDefault();
+    if (selectedCard) {
+      box.appendChild(selectedCard);
+      renumberCards()
+    }
+  });
+});
+
+// Task Creator
+function createTaskElement(category) {
+  const newTask = document.createElement('div');
+  newTask.classList.add('task');
+  newTask.dataset.category = category;
+
+  newTask.setAttribute('draggable', 'true');
+
+  newTask.innerHTML = `
+   <div class="card">
+      <div class="up-bar">
+        <p class="task-number"></p>
+        <button class="trash-button">
+          <span class="material-symbols-outlined icon">delete</span>
+        </button>
+      </div>
+      <textarea placeholder="type here..." class="text" rows="1"></textarea>
+      <div class="activity-bar">
+        <button class="flag-button">
+          <span class="material-symbols-outlined icon">flag</span>
+        </button>
+        <div class="date-bar">
+          <span class="material-symbols-outlined icon">alarm</span>
+          <textarea class="date" rows="1" placeholder="4 Oct"></textarea>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Drag nad Drop
+  newTask.addEventListener('dragstart', e => {
+    if (['TEXTAREA', 'BUTTON', 'SPAN'].includes(e.target.tagName)) {
+      return;
+    }
+    selectedCard = newTask;
+    newTask.classList.add('dragging');
+  });
+
+  newTask.addEventListener('dragend', () => {
+    selectedCard = null;
+    newTask.classList.remove('dragging');
+  });
+
+  // Auto Resize Text Area
+  const textEntered = newTask.querySelector('.text');
+  textEntered.addEventListener('input', function () {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+  });
+
+  // Trash Button
+  const deleteButton = newTask.querySelector('.trash-button');
+  deleteButton.addEventListener('click', () => {
+    newTask.remove();
+    counts[category] = Math.max(0, counts[category] - 1);
+    updateDisplay(category);
+    renumberCards();
+  });
+
+  // Delete All
+  const resetButton = document.querySelector('.delete-button');
+  resetButton.onclick = () => {
+    document.querySelectorAll('.task').forEach(task => task.remove());
+
+    document.querySelector('.numberToDo').textContent = '0';
+    document.querySelector('.numberInProgress').textContent = '0';
+    document.querySelector('.numberCompleted').textContent = '0';
+
+    counts.toDo = 0;
+    counts.inProgress = 0;
+    counts.completed = 0;
+  };
+
+  return newTask;
+}
+
+// Dark Mode Toggle
+const toggleButton = document.querySelector('.toggle-button');
+if (toggleButton) {
+  toggleButton.addEventListener('click', () => {
+    document.body.classList.toggle('invert-color');
+  });
+}
+
+// Add Task Button Handlers
+Object.keys(addButtons).forEach(category => {
+  if (addButtons[category]) {
+    addButtons[category].addEventListener('click', () => {
+      const task = createTaskElement(category);
+      containers[category].appendChild(task);
+
+      counts[category] += 1;
+      updateDisplay(category);
+      // renumberCards();
+    });
+  }
+});
+document.addEventListener('click', () => {
+  renumberCards();
 });
